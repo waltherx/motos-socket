@@ -8,18 +8,21 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/waltherx/motos-socket/config"
 )
 
 var (
 	connHost = "localhost"
 	connPort = "8080"
 	connType = "tcp"
+	urlPost  = ""
 )
 
 func init() {
 	err := godotenv.Load(".env")
 	connHost = os.Getenv("SS_HOST")
 	connPort = os.Getenv("SS_PORT")
+	urlPost = os.Getenv("URL_POST")
 
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -28,10 +31,10 @@ func init() {
 
 func main() {
 	// Start the server and listen for incoming connections.
-	fmt.Println("Iniciando " + connType + "Servidor -> " + connHost + ":" + connPort)
+	fmt.Println("🤖⚡ Iniciando " + connType + "Servidor -> " + connHost + ":" + connPort)
 	l, err := net.Listen(connType, connHost+":"+connPort)
 	if err != nil {
-		fmt.Println("Error listening:", err.Error())
+		fmt.Println("Error escuchando:", err.Error())
 		os.Exit(1)
 	}
 	// Close the listener when the application closes.
@@ -42,13 +45,13 @@ func main() {
 		// Listen for an incoming connection.
 		c, err := l.Accept()
 		if err != nil {
-			fmt.Println("Error connecting:", err.Error())
+			fmt.Println("Error en la conexion:", err.Error())
 			return
 		}
-		fmt.Println("Client connected.")
+		fmt.Println("Cliente conectado.")
 
 		// Print client connection address.
-		fmt.Println("Client " + c.RemoteAddr().String() + " connected.")
+		fmt.Println("Cliente " + c.RemoteAddr().String() + " conectado.")
 
 		// Handle connections concurrently in a new goroutine.
 		go handleConnection(c)
@@ -61,13 +64,17 @@ func handleConnection(conn net.Conn) {
 
 	// Close left clients.
 	if err != nil {
-		fmt.Println("Client left.")
+		fmt.Println("Cliente salio.")
 		conn.Close()
 		return
 	}
 
 	// Print response message, stripping newline character.
-	log.Println("Client message:", string(buffer[:len(buffer)-1]))
+	data := string(buffer[:len(buffer)-1])
+
+	//fmt.Println(urlPost + " - " + data)
+	config.SendPosition(data, urlPost)
+	log.Println("💬⚡Cliente message:", data)
 
 	// Send response message to the client.
 	conn.Write(buffer)
