@@ -6,9 +6,11 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/waltherx/motos-socket/config"
+	"go.uber.org/zap"
 )
 
 var (
@@ -23,15 +25,18 @@ func init() {
 	connHost = os.Getenv("SS_HOST")
 	connPort = os.Getenv("SS_PORT")
 	urlPost = os.Getenv("URL_POST")
-
+	logger := zap.Must(zap.NewProduction())
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		logger.Fatal("Error al cargar el archivo .env",
+			zap.String("date", time.Now().String()),
+		)
 	}
 }
 
 func main() {
 	// Start the server and listen for incoming connections.
 	fmt.Println("🤖⚡ Iniciando " + connType + "Servidor -> " + connHost + ":" + connPort)
+
 	l, err := net.Listen(connType, connHost+":"+connPort)
 	if err != nil {
 		fmt.Println("Error escuchando:", err.Error())
@@ -45,7 +50,7 @@ func main() {
 		// Listen for an incoming connection.
 		c, err := l.Accept()
 		if err != nil {
-			fmt.Println("Error en la conexion:", err.Error())
+			fmt.Println("Error de conexion:", err.Error())
 			return
 		}
 		fmt.Println("Cliente conectado.")

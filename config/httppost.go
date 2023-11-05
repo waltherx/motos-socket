@@ -97,7 +97,6 @@ func DataToPosition(data string) Position {
 }
 
 func SendPosition(data string, posturl string) {
-	//posturl := "http://localhost:8080/api/position"
 	requestData := DataToPosition(data)
 	jsonData, err := json.Marshal(requestData)
 	if err != nil {
@@ -122,18 +121,5 @@ func SendPosition(data string, posturl string) {
 
 	defer res.Body.Close()
 
-	/*position := &Position{}
-	derr := json.NewDecoder(res.Body).Decode(position)
-	if derr != nil {
-		panic(derr)
-	}*/
-
-	/*if res.StatusCode != http.StatusCreated {
-		panic(res.Status)
-	}*/
-
 	fmt.Println("Http response:", res.StatusCode)
-	/*fmt.Println("Latitud:", position.Latitude)
-	fmt.Println("Longitud:", position.Longitude)
-	fmt.Println("Dispositivo:", position.Dispositivo_id)*/
 }
