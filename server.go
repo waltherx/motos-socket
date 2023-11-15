@@ -6,11 +6,9 @@ import (
 	"log"
 	"net"
 	"os"
-	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/waltherx/motos-socket/config"
-	"go.uber.org/zap"
 )
 
 var (
@@ -25,11 +23,9 @@ func init() {
 	connHost = os.Getenv("SS_HOST")
 	connPort = os.Getenv("SS_PORT")
 	urlPost = os.Getenv("URL_POST")
-	logger := zap.Must(zap.NewProduction())
+
 	if err != nil {
-		logger.Fatal("Error al cargar el archivo .env",
-			zap.String("date", time.Now().String()),
-		)
+		fmt.Println("Error al cargar el archivo .env", err.Error())
 	}
 }
 
