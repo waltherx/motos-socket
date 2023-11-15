@@ -28,7 +28,6 @@ func StringToInt(str string) int {
 }
 
 type Position struct {
-	//date           string  `json:"date"`
 	Latitude       float64 `json:"latitude"`
 	Longitude      float64 `json:"longitude"`
 	Timestamp      int     `json:"timestamp"`
@@ -60,7 +59,7 @@ func DataToPosition(data string) Position {
 		u, err := url.Parse(urlStr)
 		if err != nil {
 			fmt.Println("Error al analizar la URL:", err)
-			panic(err)
+			fmt.Println("la URL:", u.String())
 		}
 		// Obtener el método HTTP y la ruta
 		httpMethod := parts[0]
@@ -80,8 +79,6 @@ func DataToPosition(data string) Position {
 		speed := StringToFloat(queryParams.Get("speed"))
 		batt := StringToFloat(queryParams.Get("batt"))
 
-		fmt.Println("------ lat ------", queryParams.Get("id"))
-
 		return Position{
 			Latitude:       lat,
 			Longitude:      lon,
@@ -100,15 +97,23 @@ func SendPosition(data string, posturl string) {
 	requestData := DataToPosition(data)
 	jsonData, err := json.Marshal(requestData)
 	if err != nil {
-		panic(err)
+		fmt.Println("Error cast Json: ", err)
+		return
 	}
+	allow := radioAllow(requestData.Latitude, requestData.Longitude)
+	if !allow {
+		fmt.Println("Error al intentar terminar el proceso:", err)
+		return
+	}
+
 	body := []byte(jsonData)
 
 	fmt.Println("Body:", string(body))
 
 	r, err := http.NewRequest("POST", posturl, bytes.NewBuffer(jsonData))
 	if err != nil {
-		panic(err)
+		fmt.Println("Error al enviar posicion: ", err)
+		return
 	}
 
 	r.Header.Add("Content-Type", "application/json")
@@ -116,7 +121,8 @@ func SendPosition(data string, posturl string) {
 	client := &http.Client{}
 	res, err := client.Do(r)
 	if err != nil {
-		panic(err)
+		fmt.Println("Error peticion http: ", err)
+		return
 	}
 
 	defer res.Body.Close()

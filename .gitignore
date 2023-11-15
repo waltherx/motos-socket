@@ -31,7 +31,7 @@
 \#*\#
 
 # Dependencias y archivos generados por Go
-/go.mod
+#/go.mod
 /go.sum
 /bin/
 /pkg/
