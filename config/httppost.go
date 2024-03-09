@@ -100,11 +100,11 @@ func SendPosition(data string, posturl string) {
 		fmt.Println("Error cast Json: ", err)
 		return
 	}
-	allow := radioAllow(requestData.Latitude, requestData.Longitude)
-	if !allow {
-		fmt.Println("Error al intentar terminar el proceso:", err)
-		return
-	}
+	//allow := radioAllow(requestData.Latitude, requestData.Longitude)
+	//if !allow {
+	//	fmt.Println("Error al intentar terminar el proceso:", err)
+	//	return
+	//}
 
 	body := []byte(jsonData)
 

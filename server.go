@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"net"
@@ -36,7 +35,7 @@ func main() {
 	l, err := net.Listen(connType, connHost+":"+connPort)
 	if err != nil {
 		fmt.Println("Error escuchando:", err.Error())
-		os.Exit(1)
+		return
 	}
 	// Close the listener when the application closes.
 	defer l.Close()
@@ -60,26 +59,29 @@ func main() {
 }
 
 func handleConnection(conn net.Conn) {
-	// Buffer client input until a newline.
-	buffer, err := bufio.NewReader(conn).ReadBytes('\n')
+	defer conn.Close()
+	fmt.Println("Nueva conexión establecida")
 
-	// Close left clients.
+	// Leer datos del cliente
+	buffer := make([]byte, 1024)
+	n, err := conn.Read(buffer)
 	if err != nil {
-		fmt.Println("Cliente salio.")
-		conn.Close()
+		fmt.Println("Error al leer datos:", err)
 		return
 	}
 
-	// Print response message, stripping newline character.
-	data := string(buffer[:len(buffer)-1])
+	clientMessage := string(buffer[:n])
+	fmt.Println("Mensaje del cliente:", clientMessage)
+	config.SendPosition(clientMessage, urlPost)
+	log.Println("💬⚡Cliente message:", clientMessage)
 
-	//fmt.Println(urlPost + " - " + data)
-	config.SendPosition(data, urlPost)
-	log.Println("💬⚡Cliente message:", data)
+	// Enviar respuesta al cliente
+	response := "ok 200!"
+	_, err = conn.Write([]byte(response))
+	if err != nil {
+		fmt.Println("Error al enviar respuesta:", err)
+		return
+	}
 
-	// Send response message to the client.
-	conn.Write(buffer)
-
-	// Restart the process.
-	handleConnection(conn)
+	fmt.Println("Respuesta enviada al cliente:", response)
 }
