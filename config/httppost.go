@@ -51,7 +51,7 @@ func DataToPosition(data string) Position {
 
 	parts := strings.Split(data, " ")
 
-	if len(parts) == 3 {
+	if len(parts) >= 3 {
 		// Extraer la URL
 		urlStr := parts[1]
 
