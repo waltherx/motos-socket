@@ -1,6 +1,9 @@
 package config
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 const radioTierraKm = 6378.0
 
@@ -28,5 +31,6 @@ func radioAllow(lat2, lon2 float64) bool {
 	lat1 := -17.783309
 	lon1 := -63.182122
 	distance := calculateDistance(lat1, lon1, lat2, lon2)
+	fmt.Println("La distancia es ", distance)
 	return distance >= 519.93
 }

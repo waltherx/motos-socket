@@ -62,15 +62,15 @@ func DataToPosition(data string) Position {
 			fmt.Println("la URL:", u.String())
 		}
 		// Obtener el método HTTP y la ruta
-		httpMethod := parts[0]
-		urlPath := u.Path
+		//httpMethod := parts[0]
+		//urlPath := u.Path
 
 		// Obtener los parámetros
 		queryParams := u.Query()
 
 		// Imprimir el resultado
-		fmt.Printf("Método HTTP: %s\n", httpMethod)
-		fmt.Printf("Ruta URL: %s\n", urlPath)
+		//fmt.Printf("Método HTTP: %s\n", httpMethod)
+		//fmt.Printf("Ruta URL: %s\n", urlPath)
 		// Acceder a los valores individuales
 		id := StringToInt(queryParams.Get("id"))
 		lat := StringToFloat(queryParams.Get("lat"))
@@ -100,32 +100,39 @@ func SendPosition(data string, posturl string) {
 		fmt.Println("Error cast Json: ", err)
 		return
 	}
-	//allow := radioAllow(requestData.Latitude, requestData.Longitude)
-	//if !allow {
-	//	fmt.Println("Error al intentar terminar el proceso:", err)
-	//	return
-	//}
-
-	body := []byte(jsonData)
-
-	fmt.Println("Body:", string(body))
-
-	r, err := http.NewRequest("POST", posturl, bytes.NewBuffer(jsonData))
-	if err != nil {
-		fmt.Println("Error al enviar posicion: ", err)
-		return
+	inCty := radioAllow(requestData.Latitude, requestData.Longitude)
+	if inCty {
+		fmt.Println("Dentro del Departamento. 🏍")
+	} else {
+		fmt.Println("Fuera de la Departamento. ☠")
 	}
+	allow := validatePositionDecimals(requestData.Latitude, requestData.Longitude, 6)
 
-	r.Header.Add("Content-Type", "application/json")
+	if allow {
 
-	client := &http.Client{}
-	res, err := client.Do(r)
-	if err != nil {
-		fmt.Println("Error peticion http: ", err)
-		return
+		body := []byte(jsonData)
+
+		fmt.Println("Body:", string(body))
+
+		r, err := http.NewRequest("POST", posturl, bytes.NewBuffer(jsonData))
+		if err != nil {
+			fmt.Println("Error al enviar posicion: ", err)
+			return
+		}
+
+		r.Header.Add("Content-Type", "application/json")
+
+		client := &http.Client{}
+		res, err := client.Do(r)
+		if err != nil {
+			fmt.Println("Error peticion http: ", err)
+			return
+		}
+
+		defer res.Body.Close()
+
+		fmt.Println("Http response:", res.StatusCode)
+	} else {
+		fmt.Println("Lat, Lng deve ser mayor a 6")
 	}
-
-	defer res.Body.Close()
-
-	fmt.Println("Http response:", res.StatusCode)
 }
